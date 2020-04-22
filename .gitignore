@@ -1,0 +1,4 @@
+/cmd/*/vendor
+/cmd/wg-prune/wg-prune
+.DS_Store
+Thumbs.db
