@@ -2,3 +2,5 @@
 /cmd/wg-prune/wg-prune
 .DS_Store
 Thumbs.db
+/cmd/wg-activate/wg-activate
+/cmd/wg-activate/*.sh
