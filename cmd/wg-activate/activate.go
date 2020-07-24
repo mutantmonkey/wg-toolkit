@@ -87,33 +87,24 @@ func main() {
 
 	resp := ClientConfigResponse{}
 
-	/*addrs, err := iface.Addrs()
-	if err != nil {
-		panic(err)
-	}
-
-	for _, addr := range addrs {
-		ip, _, err := net.ParseCIDR(addr.String())
-		if err != nil {
-			panic(err)
-		}
-
-		if ip.To4() == nil {
-			resp.ServerIPv6 = addr.String()
-		} else {
-			resp.ServerIPv4 = addr.String()
-		}
-	}*/
-
 	clientIPv4, clientIPv6, serverIPv4, serverIPv6, err := getInterfaceIPs(iface)
 	if err != nil {
 		panic(err)
 	}
-	peerConfig.AllowedIPs = []net.IPNet{*clientIPv4, *clientIPv6}
-	resp.ClientIPv4 = clientIPv4.IP.String()
-	resp.ClientIPv6 = clientIPv6.IP.String()
-	resp.ServerIPv4 = serverIPv4.IP.String()
-	resp.ServerIPv6 = serverIPv6.IP.String()
+	if clientIPv4 != nil {
+		peerConfig.AllowedIPs = append(peerConfig.AllowedIPs, *clientIPv4)
+		resp.ClientIPv4 = clientIPv4.IP.String()
+	}
+	if clientIPv6 != nil {
+		peerConfig.AllowedIPs = append(peerConfig.AllowedIPs, *clientIPv6)
+		resp.ClientIPv6 = clientIPv6.IP.String()
+	}
+	if serverIPv4 != nil {
+		resp.ServerIPv4 = serverIPv4.IP.String()
+	}
+	if serverIPv6 != nil {
+		resp.ServerIPv6 = serverIPv6.IP.String()
+	}
 
 	config.Peers = append(config.Peers, peerConfig)
 

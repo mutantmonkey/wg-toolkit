@@ -29,6 +29,12 @@ func parsePointAddrs(ifam *syscall.IfAddrmsg, attrs []syscall.NetlinkRouteAttr) 
 			peerAddr = parseAddr(ifam, a)
 		}
 	}
+	// With IPv4, it seems that we can get IFA_LOCAL and IFA_ADDRESS
+	// attributes that are identical. If that happens, reset localAddr to
+	// nil and just return peerAddr
+	if localAddr != nil && peerAddr != nil && localAddr.IP.Equal(peerAddr.IP) {
+		localAddr = nil
+	}
 	return
 }
 
@@ -55,12 +61,34 @@ loop:
 					return clientIPv4, clientIPv6, serverIPv4, serverIPv6, os.NewSyscallError("parsenetlinkrouteattr", err)
 				}
 				localAddr, peerAddr := parsePointAddrs(ifam, attrs)
-				if localAddr.IP.To4() != nil {
-					clientIPv4 = peerAddr
-					serverIPv4 = localAddr
+				if localAddr != nil {
+					if localAddr.IP.To4() != nil {
+						clientIPv4 = peerAddr
+						serverIPv4 = localAddr
+					} else {
+						clientIPv6 = peerAddr
+						serverIPv6 = localAddr
+					}
 				} else {
-					clientIPv6 = peerAddr
-					serverIPv6 = localAddr
+					// There was no peer address returned, so increment server address by 1 to get client address
+					clientAddr := &net.IPNet{IP: make(net.IP, len(peerAddr.IP)), Mask: make(net.IPMask, len(peerAddr.Mask))}
+					copy(clientAddr.IP, peerAddr.IP)
+					clientAddr.IP[len(clientAddr.IP)-1] += 1
+					copy(clientAddr.Mask, peerAddr.Mask)
+
+					// Check that the new client address is in the same network as the server
+					// If not, reset to nil
+					if !peerAddr.Contains(clientAddr.IP) {
+						clientAddr = nil
+					}
+
+					if peerAddr.IP.To4() != nil {
+						clientIPv4 = clientAddr
+						serverIPv4 = peerAddr
+					} else {
+						clientIPv6 = clientAddr
+						serverIPv6 = peerAddr
+					}
 				}
 			}
 		}
