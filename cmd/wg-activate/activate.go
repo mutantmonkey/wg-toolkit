@@ -93,17 +93,17 @@ func main() {
 	}
 	if clientIPv4 != nil {
 		peerConfig.AllowedIPs = append(peerConfig.AllowedIPs, *clientIPv4)
-		resp.ClientIPv4 = clientIPv4.IP.String()
+		resp.ClientIPv4 = clientIPv4.String()
 	}
 	if clientIPv6 != nil {
 		peerConfig.AllowedIPs = append(peerConfig.AllowedIPs, *clientIPv6)
-		resp.ClientIPv6 = clientIPv6.IP.String()
+		resp.ClientIPv6 = clientIPv6.String()
 	}
 	if serverIPv4 != nil {
-		resp.ServerIPv4 = serverIPv4.IP.String()
+		resp.ServerIPv4 = serverIPv4.String()
 	}
 	if serverIPv6 != nil {
-		resp.ServerIPv6 = serverIPv6.IP.String()
+		resp.ServerIPv6 = serverIPv6.String()
 	}
 
 	config.Peers = append(config.Peers, peerConfig)
