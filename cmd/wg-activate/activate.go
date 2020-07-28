@@ -100,10 +100,10 @@ func main() {
 		resp.ClientIPv6 = clientIPv6.String()
 	}
 	if serverIPv4 != nil {
-		resp.ServerIPv4 = serverIPv4.String()
+		resp.ServerIPv4 = serverIPv4.IP.String()
 	}
 	if serverIPv6 != nil {
-		resp.ServerIPv6 = serverIPv6.String()
+		resp.ServerIPv6 = serverIPv6.IP.String()
 	}
 
 	config.Peers = append(config.Peers, peerConfig)
