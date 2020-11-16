@@ -4,3 +4,4 @@
 Thumbs.db
 /cmd/wg-activate/wg-activate
 /cmd/wg-activate/*.sh
+/cmd/wg-netns-up/wg-netns-up
