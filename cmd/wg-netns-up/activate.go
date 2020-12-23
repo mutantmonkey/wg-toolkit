@@ -56,31 +56,31 @@ func main() {
 
 		cmd := exec.Command("ip", "netns", "add", nsName)
 		if err := cmd.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+			fmt.Fprintf(os.Stderr, "error running ip netns add: %s\n", err)
 			os.Exit(4)
 		}
 
 		cmd = exec.Command("ip", "link", "add", "dev", "wg0", "type", "wireguard")
 		if err := cmd.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+			fmt.Fprintf(os.Stderr, "error running ip link add: %s\n", err)
 			os.Exit(4)
 		}
 
 		cmd = exec.Command("ip", "link", "set", "wg0", "netns", nsName)
 		if err := cmd.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+			fmt.Fprintf(os.Stderr, "error running ip link set: %s\n", err)
 			os.Exit(4)
 		}
 
 		cmd = exec.Command("ip", "-n", nsName, "address", "add", "dev", "wg0", clientIPv4, "peer", serverIPv4)
 		if err := cmd.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+			fmt.Fprintf(os.Stderr, "error running ip address add: %s\n", err)
 			os.Exit(4)
 		}
 
 		cmd = exec.Command("ip", "-n", nsName, "address", "add", "dev", "wg0", clientIPv6, "peer", serverIPv6)
 		if err := cmd.Run(); err != nil {
-			fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+			fmt.Fprintf(os.Stderr, "error running ip address add: %s\n", err)
 			os.Exit(4)
 		}
 	}
@@ -88,25 +88,25 @@ func main() {
 	cmd := exec.Command("ip", "netns", "exec", nsName, "wg", "setconf", "wg0", "/proc/self/fd/0")
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+		fmt.Fprintf(os.Stderr, "error setting wireguard config: %s\n", err)
 		os.Exit(4)
 	}
 
 	cmd = exec.Command("ip", "-n", nsName, "link", "set", "wg0", "up")
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+		fmt.Fprintf(os.Stderr, "error setting link up: %s\n", err)
 		os.Exit(4)
 	}
 
 	cmd = exec.Command("ip", "-n", nsName, "route", "add", "default", "dev", "wg0")
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+		fmt.Fprintf(os.Stderr, "error adding default IPv4 route: %s\n", err)
 		os.Exit(4)
 	}
 
 	cmd = exec.Command("ip", "-n", nsName, "-6", "route", "add", "default", "dev", "wg0")
 	if err := cmd.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "error running command: %s\n", err)
+		fmt.Fprintf(os.Stderr, "error adding default IPv6 route: %s\n", err)
 		os.Exit(4)
 	}
 }
