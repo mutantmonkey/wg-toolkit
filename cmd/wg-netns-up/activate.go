@@ -48,6 +48,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	configPath := flag.Arg(0)
+	if len(configPath) <= 0 {
+		// not specified on command line? read from stdin then...
+		configPath = "/proc/self/fd/0"
+	}
+
 	nsName = filepath.Base(nsName)
 	nsPath := filepath.Join("/run/netns", nsName)
 
@@ -85,7 +91,7 @@ func main() {
 		}
 	}
 
-	cmd := exec.Command("ip", "netns", "exec", nsName, "wg", "setconf", "wg0", "/proc/self/fd/0")
+	cmd := exec.Command("ip", "netns", "exec", nsName, "wg", "setconf", "wg0", configPath)
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "error setting wireguard config: %s\n", err)
